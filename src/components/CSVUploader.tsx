@@ -17,33 +17,31 @@ const CSVUploader = ({ onFilesUploaded }: CSVUploaderProps) => {
   const { toast } = useToast();
 
   const handleFiles = async (files: FileList) => {
-    const supportedFiles = Array.from(files).filter(file =>
-      file.name.match(/\.(csv|tsv|xlsx|xls|json)$/i)
-    );
-
-    if (supportedFiles.length === 0) {
+    const csvFiles = Array.from(files).filter(file => file.name.endsWith('.csv'));
+    
+    if (csvFiles.length === 0) {
       toast({
         title: "Invalid files",
-        description: "Please upload .csv, .tsv, .xlsx, .xls, or .json files.",
+        description: "Please upload CSV files only.",
         variant: "destructive"
       });
       return;
     }
 
     setIsProcessing(true);
-
+    
     try {
-      const tables = await parseCSVFiles(supportedFiles);
+      const tables = await parseCSVFiles(csvFiles);
       onFilesUploaded(tables);
       toast({
         title: "Files uploaded successfully",
-        description: `Processed ${supportedFiles.length} file(s).`
+        description: `Processed ${csvFiles.length} CSV file(s).`
       });
     } catch (error) {
-      console.error('Error parsing files:', error);
+      console.error('Error parsing CSV files:', error);
       toast({
         title: "Error processing files",
-        description: "There was an error parsing your files.",
+        description: "There was an error parsing your CSV files.",
         variant: "destructive"
       });
     } finally {
@@ -94,9 +92,9 @@ const CSVUploader = ({ onFilesUploaded }: CSVUploaderProps) => {
             </div>
             
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Upload Files</h3>
+              <h3 className="text-lg font-semibold">Upload CSV Files</h3>
               <p className="text-sm text-muted-foreground">
-                Drag and drop .csv, .tsv, .xlsx, .xls, or .json files here, or click to browse
+                Drag and drop your CSV files here, or click to browse
               </p>
             </div>
 
@@ -113,7 +111,7 @@ const CSVUploader = ({ onFilesUploaded }: CSVUploaderProps) => {
               ref={fileInputRef}
               type="file"
               multiple
-              accept=".csv,.tsv,.xlsx,.xls,.json"
+              accept=".csv"
               className="hidden"
               onChange={handleFileInput}
             />
